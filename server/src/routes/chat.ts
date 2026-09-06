@@ -19,7 +19,7 @@ const chatRouter = () => {
     const isAdmin = user.role === 'admin';
     const query = supabase
       .from('conversations')
-      .select('*, messages(count)', isAdmin ? undefined : { count: false })
+      .select('*, messages(count)', isAdmin ? undefined : { count: 'exact' as const })
       .order('updated_at', { ascending: false });
 
     if (!isAdmin) {

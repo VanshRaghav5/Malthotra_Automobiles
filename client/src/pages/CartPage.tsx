@@ -3,7 +3,7 @@ import { useCartStore } from '../stores/cartStore';
 import { Trash2, ShoppingBag } from 'lucide-react';
 
 export default function CartPage() {
-  const { items, removeItem, updateQuantity, clearCart, total } = useCartStore();
+  const { items, removeItem, updateQuantity, total } = useCartStore();
   const navigate = useNavigate();
 
   if (items.length === 0) {
@@ -28,8 +28,16 @@ export default function CartPage() {
       <div className="space-y-4">
         {items.map(({ product, quantity }) => (
           <div key={product.id} className="flex items-center gap-4 bg-white border border-gray-200 rounded-xl p-4">
-            <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-              <span className="text-gray-400 text-xs">Image</span>
+            <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
+              {product.product_images?.[0]?.storage_path ? (
+                <img
+                  src={`https://rlmmyueiqqegelkvxjxa.supabase.co/storage/v1/object/public/product-images/${product.product_images[0].storage_path}`}
+                  alt={product.name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span className="text-gray-400 text-xs">Image</span>
+              )}
             </div>
             <div className="flex-1 min-w-0">
               <h3 className="font-medium text-primary-900 truncate">{product.name}</h3>

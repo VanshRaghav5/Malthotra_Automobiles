@@ -9,6 +9,21 @@ export interface Profile {
   updated_at: string;
 }
 
+export interface BusinessSettings {
+  business_name: string;
+  address: string;
+  phone: string;
+  email: string;
+  weekday_hours: string;
+  sunday_hours: string;
+  weekday_start: string;
+  weekday_end: string;
+  sunday_start: string;
+  sunday_end: string;
+  sunday_closed: 'true' | 'false';
+  owner_email: string;
+}
+
 export interface Vehicle {
   id: string;
   customer_id: string;
@@ -28,6 +43,16 @@ export interface Category {
   description: string | null;
   image: string | null;
   active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ProductImage {
+  id: string;
+  product_id: string;
+  storage_path: string;
+  sort_order: number;
+  created_at: string;
 }
 
 export interface Product {
@@ -45,6 +70,9 @@ export interface Product {
   availability_status: 'in_stock' | 'low_stock' | 'out_of_stock';
   featured: boolean;
   published: boolean;
+  product_images?: ProductImage[];
+  created_at: string;
+  updated_at: string;
 }
 
 export interface Service {
@@ -56,6 +84,9 @@ export interface Service {
   price: number;
   image: string | null;
   active: boolean;
+  availability_slots?: AvailabilitySlot[];
+  created_at: string;
+  updated_at: string;
 }
 
 export type SlotStatus = 'available' | 'held' | 'booked' | 'blocked' | 'cancelled';
@@ -68,6 +99,9 @@ export interface AvailabilitySlot {
   end_time: string;
   status: SlotStatus;
   capacity: number;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 export type RequestStatus = 'submitted' | 'under_review' | 'accepted' | 'rejected' | 'ready_for_visit' | 'completed' | 'cancelled';
@@ -81,13 +115,16 @@ export interface Request {
   notes: string | null;
   estimated_total: number | null;
   created_at: string;
+  updated_at: string;
 }
 
 export interface Conversation {
   id: string;
   customer_id: string;
   status: 'open' | 'closed' | 'archived';
-  messages: Message[];
+  messages?: Message[];
+  created_at: string;
+  updated_at: string;
 }
 
 export interface Message {

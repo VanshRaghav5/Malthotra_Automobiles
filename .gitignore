@@ -1,12 +1,51 @@
+# Dependencies
 node_modules/
+*/node_modules/
+
+# Build output
 dist/
 build/
+*.tsbuildinfo
+*.tsbuildinfo.local
+
+# Environment
 .env
 .env.local
 .env.production
+.env.*.local
+
+# Logs
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS
 .DS_Store
-coverage/
+Thumbs.db
+
+# IDE
 .idea/
 .vscode/
-*.tsbuildinfo
+*.swp
+*.swo
+
+# Coverage
+coverage/
+
+# Test artifacts
+*.test.ts.snap
+__tests__/__snapshots__/
+
+# Large binary files
+*.pdf
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.bmp
+*.tiff
+
+# Cache
+.cache/
+.vite/

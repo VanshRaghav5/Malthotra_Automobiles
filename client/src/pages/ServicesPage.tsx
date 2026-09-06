@@ -28,11 +28,13 @@ export default function ServicesPage() {
                 <Calendar size={32} className="text-gray-400" />
               </div>
               <h2 className="text-xl font-semibold text-primary-900">{service.name}</h2>
-              <div className="flex items-center gap-2 text-gray-500 mt-2">
-                <Clock size={16} />
-                <span className="text-sm">{service.duration_minutes} minutes</span>
+              <div className="flex items-center gap-4 mt-2 text-gray-500 text-sm">
+                <span className="flex items-center gap-1"><Clock size={14} /> {service.duration_minutes} min</span>
+                <span className="text-accent font-bold text-lg">${service.price.toFixed(2)}</span>
               </div>
-              <p className="text-accent font-bold text-xl mt-4">From ${service.price.toFixed(2)}</p>
+              {service.description && (
+                <p className="text-sm text-gray-500 mt-3 line-clamp-2">{service.description}</p>
+              )}
               <Link
                 to={`/services/book/${service.slug}`}
                 className="mt-4 block w-full py-2 bg-primary-900 text-white text-center rounded-lg font-medium hover:bg-primary-800 transition-colors"

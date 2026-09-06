@@ -18,7 +18,12 @@ export default function AdminLayout() {
         {/* Sidebar */}
         <aside className="w-64 bg-primary-900 text-white min-h-screen fixed left-0 top-0">
           <div className="p-6">
-            <h1 className="text-lg font-bold">Admin Panel</h1>
+            <img
+              src="/malhotra-automobiles-logo.jpeg"
+              alt="Malhotra Automobiles"
+              className="w-48 h-32 object-contain rounded-md bg-black mx-auto mb-4 ring-2 ring-accent/50"
+            />
+            <h1 className="text-lg font-bold text-center">Admin Panel</h1>
           </div>
           <nav className="px-4 space-y-1">
             {navItems.map(({ to, label, icon: Icon }) => {

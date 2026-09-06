@@ -2,24 +2,22 @@ import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { Search, Filter } from 'lucide-react';
 import { getProducts, getCategories } from '../lib/api';
-import type { Product } from '../types';
+import type { Product, Category } from '../types';
 import { useState } from 'react';
-import { useCartStore } from '../stores/cartStore';
 
 export default function ProductsPage() {
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('');
-  const addItem = useCartStore((s) => s.addItem);
 
   const { data, isLoading } = useQuery({
     queryKey: ['products', category, search],
     queryFn: () =>
-      getProducts({ category, search }).then((r) => r.data || []),
+      getProducts({ category, search }).then((r) => r.data?.data || []),
   });
 
   const { data: categories } = useQuery({
     queryKey: ['categories'],
-    queryFn: () => getCategories().then((r) => r.data || []),
+    queryFn: () => getCategories().then((r) => r.data as Category[]),
   });
 
   return (
@@ -46,7 +44,7 @@ export default function ProductsPage() {
             onChange={(e) => setCategory(e.target.value)}
           >
             <option value="">All Categories</option>
-            {categories?.map((cat) => (
+            {categories?.map((cat: Category) => (
               <option key={cat.id} value={cat.id}>{cat.name}</option>
             ))}
           </select>
@@ -68,8 +66,16 @@ export default function ProductsPage() {
               to={`/products/${product.slug}`}
               className="group block bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
             >
-              <div className="aspect-square bg-gray-100 flex items-center justify-center">
-                <span className="text-gray-400 text-sm">Image</span>
+              <div className="aspect-square bg-gray-100 flex items-center justify-center overflow-hidden">
+                {product.product_images?.[0]?.storage_path ? (
+                  <img
+                    src={`https://rlmmyueiqqegelkvxjxa.supabase.co/storage/v1/object/public/product-images/${product.product_images[0].storage_path}`}
+                    alt={product.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-gray-400 text-sm">Image</span>
+                )}
               </div>
               <div className="p-4">
                 <p className="text-xs text-gray-500">{product.brand}</p>

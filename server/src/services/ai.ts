@@ -35,7 +35,7 @@ ${context.customerContext ? JSON.stringify(context.customerContext) : 'None'}
       }
     );
 
-    const data = await response.json();
+    const data = (await response.json()) as any;
     if (data.candidates?.[0]?.content?.parts?.[0]?.text) {
       return data.candidates[0].content.parts[0].text;
     }

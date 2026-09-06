@@ -1,7 +1,8 @@
 import { Router, Response } from 'express';
 import { getSupabase } from '../lib/supabase';
 import { authMiddleware, requireAdmin, AuthRequest } from '../middleware/auth';
-import { generateGeminiResponse } from '../services/ai';
+import { sendOwnerNotification, sendStatusUpdate } from '../services/email';
+import { config } from '../config';
 
 const adminRouter = () => {
   const router = Router();
@@ -25,7 +26,7 @@ const adminRouter = () => {
         .gte('date', today)
         .in('status', ['available', 'held']),
       supabase.from('products').select('id', { count: 'exact' }).eq('published', true),
-      supabase.from('messages').select('id', { count: 'exact' }).is('read_at', null).eq('sender_type', 'admin'),
+      supabase.from('messages').select('id', { count: 'exact' }).is('read_at', null).eq('sender_type', 'customer'),
     ]);
 
     res.json({
@@ -74,10 +75,26 @@ const adminRouter = () => {
       .from('requests')
       .update({ status, updated_at: new Date().toISOString() })
       .eq('id', req.params.id)
-      .select('*, profiles(email)')
+      .select('*, profiles(name, email), vehicles(make, model)')
       .single();
 
     if (error) return res.status(500).json({ error: error.message });
+
+    const updatedRequest = data as any;
+    const customerEmail = updatedRequest.profiles?.email;
+    if (customerEmail) {
+      const { data: ownerSetting } = await supabase.from('business_settings').select('value').eq('key', 'owner_email').maybeSingle();
+      const ownerEmail = typeof ownerSetting?.value === 'string' ? ownerSetting.value : config.OWNER_EMAIL;
+      await Promise.allSettled([
+        sendStatusUpdate(customerEmail, updatedRequest, status),
+        sendOwnerNotification(ownerEmail, updatedRequest, {
+          customerName: updatedRequest.profiles?.name || 'Customer',
+          customerEmail,
+          vehicleMake: updatedRequest.vehicles?.make || 'N/A',
+          vehicleModel: updatedRequest.vehicles?.model || 'N/A',
+        }),
+      ]);
+    }
 
     // Log audit
     await supabase.from('audit_logs').insert({

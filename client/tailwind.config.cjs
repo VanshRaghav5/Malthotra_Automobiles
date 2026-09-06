@@ -1,24 +1,24 @@
 /** @type {import('tailwindcss').Config} */
-export default {
+module.exports = {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
       colors: {
         primary: {
-          50: '#f8fafc',
-          100: '#f1f5f9',
-          200: '#e2e8f0',
-          300: '#cbd5e1',
-          400: '#94a3b8',
-          500: '#64748b',
-          600: '#475569',
-          700: '#334155',
-          800: '#1e293b',
-          900: '#0f172a',
+          50: '#f5f9fc',
+          100: '#e6f0f7',
+          200: '#c9dce9',
+          300: '#9ebbd0',
+          400: '#6e96b3',
+          500: '#426d8b',
+          600: '#2e526f',
+          700: '#1e3b55',
+          800: '#11283d',
+          900: '#050b12',
         },
         accent: {
-          DEFAULT: '#dc2626',
-          hover: '#b91c1c',
+          DEFAULT: '#008bd2',
+          hover: '#006da8',
         },
       },
       fontFamily: {

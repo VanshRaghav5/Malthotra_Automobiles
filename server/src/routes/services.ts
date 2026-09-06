@@ -1,11 +1,12 @@
 import { Router, Response } from 'express';
 import { z } from 'zod';
 import { getSupabase } from '../lib/supabase';
-import { AuthRequest } from '../middleware/auth';
+import { authMiddleware, AuthRequest } from '../middleware/auth';
+import { generateAutomaticSlots } from '../services/slotGenerator';
 
 const serviceSchema = z.object({
   name: z.string().min(1),
-  slug: z.string().min(1),
+  slug: z.string().min(1).optional(),
   description: z.string().optional(),
   duration_minutes: z.number().int().positive(),
   price: z.number().positive(),
@@ -13,7 +14,6 @@ const serviceSchema = z.object({
 });
 
 const slotSchema = z.object({
-  service_id: z.string().uuid(),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   start_time: z.string().regex(/^(\d{2}:\d{2})$/),
   end_time: z.string().regex(/^(\d{2}:\d{2})$/),
@@ -29,7 +29,7 @@ const servicesRouter = () => {
   router.get('/', async (_req: AuthRequest, res: Response) => {
     const { data, error } = await supabase
       .from('services')
-      .select('*')
+      .select('*, availability_slots(*)')
       .eq('active', true)
       .order('name');
 
@@ -37,35 +37,35 @@ const servicesRouter = () => {
     res.json(data);
   });
 
-  // GET /api/v1/services/:slug - Get single service
-  router.get('/:slug', async (_req: AuthRequest, res: Response) => {
-    const { data, error } = await supabase
+  // GET /api/v1/services/:slug - Get single service with slots
+  router.get('/:slug', async (req: AuthRequest, res: Response) => {
+    const { data: service, error } = await supabase
       .from('services')
       .select('*, availability_slots(*)')
       .eq('slug', req.params.slug)
       .eq('active', true)
       .single();
 
-    if (error || !data) return res.status(404).json({ error: 'Service not found' });
-    res.json(data);
+    if (error || !service) return res.status(404).json({ error: 'Service not found' });
+    res.json(service);
   });
 
   // GET /api/v1/services/:slug/availability - Get available slots for a date range
   router.get('/:slug/availability', async (req: AuthRequest, res: Response) => {
     const { startDate, endDate } = req.query;
-    const service = await supabase
+
+    const { data: service, error: serviceError } = await supabase
       .from('services')
       .select('id')
       .eq('slug', req.params.slug)
       .single();
 
-    if (!service.data) return res.status(404).json({ error: 'Service not found' });
+    if (serviceError || !service) return res.status(404).json({ error: 'Service not found' });
 
     let query = supabase
       .from('availability_slots')
       .select('*')
-      .eq('service_id', service.data.id)
-      .in('status', ['available', 'held']);
+      .eq('service_id', service.id);
 
     if (startDate) query = query.gte('date', startDate as string);
     if (endDate) query = query.lte('date', endDate as string);
@@ -77,7 +77,7 @@ const servicesRouter = () => {
   });
 
   // Admin: POST /api/v1/services - Create service
-  router.post('/', async (req: AuthRequest, res: Response) => {
+  router.post('/', authMiddleware, async (req: AuthRequest, res: Response) => {
     if (!req.user || req.user.role !== 'admin') {
       return res.status(403).json({ error: 'Admin access required' });
     }
@@ -85,18 +85,30 @@ const servicesRouter = () => {
     const parsed = serviceSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ error: parsed.error.issues });
 
+    const baseSlug = (parsed.data.slug || parsed.data.name)
+      .toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    let slug = baseSlug || `service-${Date.now()}`;
+    const { data: existing } = await supabase.from('services').select('id').eq('slug', slug).maybeSingle();
+    if (existing) slug = `${slug}-${Date.now()}`;
+
     const { data, error } = await supabase
       .from('services')
-      .insert({ ...parsed.data, active: true })
+      .insert({ ...parsed.data, slug, active: true })
       .select()
       .single();
 
     if (error) return res.status(500).json({ error: error.message });
+    try {
+      await generateAutomaticSlots(supabase, [data.id]);
+    } catch (slotError) {
+      console.error('Failed to create automatic service slots:', slotError);
+      return res.status(500).json({ error: 'Service created, but automatic slots could not be generated' });
+    }
     res.status(201).json(data);
   });
 
   // Admin: PATCH /api/v1/services/:id - Update service
-  router.patch('/:id', async (req: AuthRequest, res: Response) => {
+  router.patch('/:id', authMiddleware, async (req: AuthRequest, res: Response) => {
     if (!req.user || req.user.role !== 'admin') {
       return res.status(403).json({ error: 'Admin access required' });
     }
@@ -116,7 +128,7 @@ const servicesRouter = () => {
   });
 
   // Admin: POST /api/v1/services/:serviceId/slots - Create slot
-  router.post('/:serviceId/slots', async (req: AuthRequest, res: Response) => {
+  router.post('/:serviceId/slots', authMiddleware, async (req: AuthRequest, res: Response) => {
     if (!req.user || req.user.role !== 'admin') {
       return res.status(403).json({ error: 'Admin access required' });
     }
@@ -135,7 +147,7 @@ const servicesRouter = () => {
   });
 
   // Admin: DELETE /api/v1/services/:serviceId/slots/:slotId - Delete slot
-  router.delete('/:serviceId/slots/:slotId', async (req: AuthRequest, res: Response) => {
+  router.delete('/:serviceId/slots/:slotId', authMiddleware, async (req: AuthRequest, res: Response) => {
     if (!req.user || req.user.role !== 'admin') {
       return res.status(403).json({ error: 'Admin access required' });
     }
@@ -145,6 +157,21 @@ const servicesRouter = () => {
       .delete()
       .eq('id', req.params.slotId)
       .eq('service_id', req.params.serviceId);
+
+    if (error) return res.status(500).json({ error: error.message });
+    res.json({ success: true });
+  });
+
+  // Admin: DELETE /api/v1/services/:id - Delete service
+  router.delete('/:id', authMiddleware, async (req: AuthRequest, res: Response) => {
+    if (!req.user || req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'Admin access required' });
+    }
+
+    const { error } = await supabase
+      .from('services')
+      .delete()
+      .eq('id', req.params.id);
 
     if (error) return res.status(500).json({ error: error.message });
     res.json({ success: true });

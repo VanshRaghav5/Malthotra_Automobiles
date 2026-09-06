@@ -1,20 +1,27 @@
-import 'dotenv/config';
+import { config } from 'dotenv';
+import { fileURLToPath } from 'url';
+import path from 'path';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
-import { config } from './config';
+import { config as appConfig } from './config';
 import { errorHandler } from './middleware/errorHandler';
 import { logger } from './middleware/logger';
 import routes from './routes';
 
+// Load .env from project root (two levels up from server/src/)
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
+config({ path: path.resolve(__dirname, '../../.env') });
+
 const app = express();
-const PORT = config.PORT;
+app.use(express.json({ limit: '10mb' }));
+const PORT = appConfig.PORT;
 
 // Security middleware
 app.use(helmet());
 app.use(cors({
-  origin: config.FRONTEND_URL,
+  origin: appConfig.FRONTEND_URL,
   credentials: true,
 }));
 app.use(express.json({ limit: '10mb' }));
@@ -38,7 +45,7 @@ app.use('/api/v1/auth', strictLimiter);
 app.use('/api/v1/', limiter);
 
 // Routes
-app.use('/api/v1', routes);
+app.use('/api/v1', routes());
 
 // Health check
 app.get('/health', (_req, res) => {
@@ -55,7 +62,8 @@ app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-  console.log(`Environment: ${config.NODE_ENV}`);
+  console.log(`Environment: ${appConfig.NODE_ENV}`);
+  console.log(`Supabase URL: ${appConfig.SUPABASE_URL || 'NOT SET'}`);
 });
 
 export default app;

@@ -9,7 +9,7 @@ const aiRouter = () => {
 
   // POST /api/v1/ai/chat - AI chat endpoint
   router.post('/chat', async (req: AuthRequest, res: Response) => {
-    const { message, conversation_id, customer_context } = req.body;
+    const { message, customer_context } = req.body;
 
     if (!message) {
       return res.status(400).json({ error: 'Message is required' });

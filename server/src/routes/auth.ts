@@ -1,6 +1,7 @@
 import { Router, Response } from 'express';
 import { getSupabase } from '../lib/supabase';
-import { AuthRequest } from '../middleware/auth';
+import { authMiddleware, AuthRequest } from '../middleware/auth';
+import { config } from '../config';
 
 const authRouter = () => {
   const router = Router();
@@ -14,28 +15,51 @@ const authRouter = () => {
       return res.status(400).json({ error: 'Email, password, and name are required' });
     }
 
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { name, phone },
+    // Create user via REST API (admin endpoint)
+    // Note: Supabase admin API requires service role key as apikey header
+    const createUserRes = await fetch(`${config.SUPABASE_URL}/auth/v1/admin/users`, {
+      method: 'POST',
+      headers: {
+        'apikey': config.SUPABASE_SERVICE_ROLE_KEY,
+        'Content-Type': 'application/json',
       },
+      body: JSON.stringify({
+        email,
+        password,
+        email_confirm: true,
+        user_metadata: { name, phone },
+      }),
     });
 
-    if (error) return res.status(400).json({ error: error.message });
-
-    // Create profile
-    if (data.user) {
-      await supabase.from('profiles').insert({
-        auth_user_id: data.user.id,
-        role: 'customer',
-        name,
-        phone,
-        email,
-      });
+    if (!createUserRes.ok) {
+      const err = (await createUserRes.json().catch(() => ({}))) as any;
+      return res.status(400).json({ error: err.error || err.msg || 'Failed to create account' });
     }
 
-    res.status(201).json({ message: 'Signup successful', user: data.user });
+    const userData = (await createUserRes.json()) as any;
+    const userId = userData.id;
+
+    // Create profile
+    const { error: profileError } = await supabase.from('profiles').insert({
+      auth_user_id: userId,
+      role: 'customer',
+      name,
+      phone: phone || null,
+      email,
+    });
+
+    if (profileError) {
+      // Cleanup auth user if profile creation fails
+      await fetch(`${config.SUPABASE_URL}/auth/v1/admin/users/${userId}`, {
+        method: 'DELETE',
+        headers: {
+          'apikey': config.SUPABASE_SERVICE_ROLE_KEY,
+        },
+      });
+      return res.status(500).json({ error: 'Account could not be created. Please try again.' });
+    }
+
+    res.status(201).json({ message: 'Signup successful', user: { id: userId, email } });
   });
 
   // POST /api/v1/auth/signin - Sign in
@@ -46,42 +70,62 @@ const authRouter = () => {
       return res.status(400).json({ error: 'Email and password are required' });
     }
 
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    // Sign in via REST API
+    const signInRes = await fetch(`${config.SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+      method: 'POST',
+      headers: {
+        'apikey': config.SUPABASE_ANON_KEY,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, password }),
+    });
 
-    if (error) return res.status(401).json({ error: error.message });
+    if (!signInRes.ok) {
+      const err = (await signInRes.json().catch(() => ({}))) as any;
+      return res.status(401).json({ error: err.error_description || err.msg || 'Invalid email or password' });
+    }
+
+    const signInData = (await signInRes.json()) as any;
+    const token = signInData.access_token;
+    const userId = signInData.user.id;
 
     // Fetch profile
-    const { data: profile } = await supabase
+    const { data: profile, error: profileError } = await supabase
       .from('profiles')
-      .select('role')
-      .eq('auth_user_id', data.user.id)
+      .select('*')
+      .eq('auth_user_id', userId)
       .single();
 
+    if (profileError || !profile) {
+      return res.status(500).json({ error: 'Account profile is incomplete. Please contact support.' });
+    }
+
     res.json({
-      user: data.user,
+      user: { id: userId, email: signInData.user.email },
       profile,
-      token: data.session?.access_token,
+      token,
     });
   });
 
   // POST /api/v1/auth/signout - Sign out
   router.post('/signout', async (req: AuthRequest, res: Response) => {
-    await supabase.auth.signOut();
     res.json({ message: 'Signed out' });
   });
 
   // GET /api/v1/auth/me - Get current user
-  router.get('/me', async (req: AuthRequest, res: Response) => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return res.status(401).json({ error: 'Not authenticated' });
+  router.get('/me', authMiddleware, async (req: AuthRequest, res: Response) => {
+    if (!req.user) return res.status(401).json({ error: 'Not authenticated' });
 
     const { data: profile } = await supabase
       .from('profiles')
       .select('*')
-      .eq('auth_user_id', user.id)
+      .eq('id', req.user.id)
       .single();
 
-    res.json({ user, profile });
+    res.json({
+      user: { id: req.user.auth_user_id, email: req.user.email },
+      profile,
+    });
   });
 
   return router;

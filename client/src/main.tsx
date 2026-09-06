@@ -9,10 +9,21 @@ import ProductDetailsPage from './pages/ProductDetailsPage';
 import ServicesPage from './pages/ServicesPage';
 import CartPage from './pages/CartPage';
 import RequestSubmitPage from './pages/RequestSubmitPage';
+import RequestSuccessPage from './pages/RequestSuccessPage';
+import ChatPage from './pages/ChatPage';
+import LoginPage from './pages/LoginPage';
+import SignupPage from './pages/SignupPage';
+import ServiceBookingPage from './pages/ServiceBookingPage';
+import AboutPage from './pages/AboutPage';
+import ContactPage from './pages/ContactPage';
+import MyRequestsPage from './pages/MyRequestsPage';
+import MyVehiclesPage from './pages/MyVehiclesPage';
 import AdminLayout from './pages/admin/AdminLayout';
 import AdminDashboard from './pages/admin/Dashboard';
 import AdminProducts from './pages/admin/Products';
 import AdminServices from './pages/admin/Services';
+import ProtectedAdminRoute from './pages/admin/ProtectedRoute';
+import AdminSettings from './pages/admin/Settings';
 import './index.css';
 
 const queryClient = new QueryClient({
@@ -34,13 +45,25 @@ export default function Root() {
             <Route path="products" element={<ProductsPage />} />
             <Route path="products/:slug" element={<ProductDetailsPage />} />
             <Route path="services" element={<ServicesPage />} />
+            <Route path="services/book/:slug" element={<ServiceBookingPage />} />
             <Route path="cart" element={<CartPage />} />
-            <Route path="request/:number" element={<RequestSubmitPage />} />
+            <Route path="request/submit" element={<RequestSubmitPage />} />
+            <Route path="request/:number" element={<RequestSuccessPage />} />
+            <Route path="chat" element={<ChatPage />} />
+            <Route path="login" element={<LoginPage />} />
+            <Route path="signup" element={<SignupPage />} />
+            <Route path="about" element={<AboutPage />} />
+            <Route path="contact" element={<ContactPage />} />
+            <Route path="my-requests" element={<MyRequestsPage />} />
+            <Route path="my-vehicles" element={<MyVehiclesPage />} />
           </Route>
-          <Route path="/admin" element={<AdminLayout />}>
-            <Route index element={<AdminDashboard />} />
-            <Route path="products" element={<AdminProducts />} />
-            <Route path="services" element={<AdminServices />} />
+          <Route element={<ProtectedAdminRoute />}>
+            <Route path="/admin" element={<AdminLayout />}>
+              <Route index element={<AdminDashboard />} />
+              <Route path="products" element={<AdminProducts />} />
+              <Route path="services" element={<AdminServices />} />
+              <Route path="settings" element={<AdminSettings />} />
+            </Route>
           </Route>
         </Routes>
       </BrowserRouter>

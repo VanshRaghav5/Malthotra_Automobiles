@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight, Car, Wrench, ShieldCheck, Clock } from 'lucide-react';
+import { ArrowRight, Car, Wrench, ShieldCheck, Clock, CalendarCheck, Gauge, Heart, Users, Award } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { getProducts, getServices } from '../lib/api';
 import type { Product, Service } from '../types';
@@ -7,7 +7,7 @@ import type { Product, Service } from '../types';
 export default function HomePage() {
   const { data: products } = useQuery({
     queryKey: ['featured-products'],
-    queryFn: () => getProducts({}).then((r) => r.data?.filter((p: Product) => p.featured).slice(0, 4) || []),
+    queryFn: () => getProducts({}).then((r) => (r.data?.data || []).filter((p: Product) => p.featured).slice(0, 4)),
   });
 
   const { data: services } = useQuery({
@@ -45,8 +45,24 @@ export default function HomePage() {
               </div>
             </div>
             <div className="hidden md:flex justify-center">
-              <div className="w-80 h-64 bg-primary-800 rounded-2xl flex items-center justify-center">
-                <Car size={80} className="text-gray-600" />
+              <div className="relative w-full max-w-md overflow-hidden rounded-2xl border border-primary-700 bg-black p-5 shadow-2xl shadow-black/30">
+                <div className="absolute inset-x-0 top-0 h-1 bg-accent" />
+                <div className="flex items-center gap-5">
+                  <img
+                    src="/malhotra-automobiles-logo.jpeg"
+                    alt="Malhotra Automobiles Chandausi"
+                    className="h-36 w-36 shrink-0 rounded-xl object-contain bg-black ring-1 ring-primary-700"
+                  />
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">Since 1977</p>
+                    <p className="mt-2 text-2xl font-bold text-white">Care for every mile.</p>
+                    <p className="mt-2 text-sm leading-6 text-primary-300">Parts, servicing, and time slots managed in one place.</p>
+                  </div>
+                </div>
+                <div className="mt-5 grid grid-cols-2 gap-3 border-t border-primary-700 pt-4">
+                  <div className="flex items-center gap-2 text-sm text-primary-200"><CalendarCheck size={17} className="text-accent" /> Easy booking</div>
+                  <div className="flex items-center gap-2 text-sm text-primary-200"><Gauge size={17} className="text-accent" /> Expert service</div>
+                </div>
               </div>
             </div>
           </div>
@@ -109,6 +125,43 @@ export default function HomePage() {
           </div>
         </section>
       )}
+
+      {/* About Us Section */}
+      <section className="py-16 bg-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl font-bold text-primary-900 mb-6">About Malhotra Automobiles</h2>
+          <p className="text-gray-600 text-lg leading-relaxed mb-8">
+            Malhotra Automobiles has been serving the Chandausi community with dedication and excellence.
+            We specialize in providing high-quality automobile products and professional maintenance services.
+            Our team of experienced technicians ensures that your vehicle receives the best care possible.
+            With a commitment to customer satisfaction and transparent service, we have built lasting
+            relationships with our clients over the years.
+          </p>
+          <div className="grid grid-cols-3 gap-8 mt-12">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Heart className="text-accent" size={28} />
+              </div>
+              <h3 className="font-semibold text-primary-900">Trusted Service</h3>
+              <p className="text-sm text-gray-500 mt-1">Since 1977</p>
+            </div>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Users className="text-accent" size={28} />
+              </div>
+              <h3 className="font-semibold text-primary-900">Expert Team</h3>
+              <p className="text-sm text-gray-500 mt-1">Certified Technicians</p>
+            </div>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Award className="text-accent" size={28} />
+              </div>
+              <h3 className="font-semibold text-primary-900">Quality Parts</h3>
+              <p className="text-sm text-gray-500 mt-1">Genuine Products</p>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
@@ -116,8 +169,16 @@ export default function HomePage() {
 function ProductCard({ product }: { product: Product }) {
   return (
     <Link to={`/products/${product.slug}`} className="group block bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
-      <div className="aspect-square bg-gray-100 flex items-center justify-center">
-        <Car size={40} className="text-gray-400" />
+      <div className="aspect-square bg-gray-100 flex items-center justify-center overflow-hidden">
+        {product.product_images?.[0]?.storage_path ? (
+          <img
+            src={`https://rlmmyueiqqegelkvxjxa.supabase.co/storage/v1/object/public/product-images/${product.product_images[0].storage_path}`}
+            alt={product.name}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <Car size={40} className="text-gray-400" />
+        )}
       </div>
       <div className="p-4">
         <p className="text-xs text-gray-500">{product.brand}</p>
@@ -136,7 +197,7 @@ function ProductCard({ product }: { product: Product }) {
 
 function ServiceCard({ service }: { service: Service }) {
   return (
-    <Link to={`/services`} className="block bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md transition-shadow">
+    <Link to={`/services/book/${service.slug}`} className="block bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md transition-shadow">
       <div className="aspect-video bg-gray-100 rounded-lg mb-4 flex items-center justify-center">
         <Wrench size={32} className="text-gray-400" />
       </div>
