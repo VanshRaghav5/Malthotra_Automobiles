@@ -68,7 +68,7 @@ export default function App() {
           <div className="flex items-center justify-between h-16">
             <Link to="/" className="flex items-center shrink-0" aria-label="Malhotra Automobiles home">
               <img
-                src="/logo.svg"
+                src="/logo.jpeg"
                 alt="Malhotra Automobiles Chandausi, established 1977"
                 className="h-14 w-24 object-contain rounded-md bg-black ring-2 ring-accent/20"
               />
@@ -188,7 +188,7 @@ export default function App() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
               <img
-                src="/logo.svg"
+                src="/logo.jpeg"
                 alt="Malhotra Automobiles Chandausi"
                 className="h-28 w-36 object-contain rounded-md bg-black mb-4 ring-2 ring-accent/30"
               />

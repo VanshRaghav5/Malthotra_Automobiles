@@ -49,7 +49,7 @@ export default function HomePage() {
                 <div className="absolute inset-x-0 top-0 h-1 bg-accent" />
                 <div className="flex items-center gap-5">
                   <img
-                    src="/logo.svg"
+                    src="/logo.jpeg"
                     alt="Malhotra Automobiles Chandausi"
                     className="h-36 w-36 shrink-0 rounded-xl object-contain bg-black ring-1 ring-primary-700"
                   />
