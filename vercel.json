@@ -1,5 +1,8 @@
 {
   "buildCommand": "npm install --prefix client && npm run build --prefix client",
   "outputDirectory": "client/dist",
-  "installCommand": "npm install"
+  "installCommand": "npm install",
+  "rewrites": [
+    { "source": "/api/v1/(.*)", "destination": "https://malhotra-api.onrender.com/api/v1/$1" }
+  ]
 }
