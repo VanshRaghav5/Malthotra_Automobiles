@@ -1,4 +1,4 @@
-import { Outlet, Link, useNavigate } from 'react-router-dom';
+import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { MessageCircle, Menu, X, User, LogOut } from 'lucide-react';
 import { useCartStore } from './stores/cartStore';
 import { useAuthStore } from './stores/authStore';
@@ -8,12 +8,21 @@ import { useQuery } from '@tanstack/react-query';
 import { getSettings } from './lib/api';
 import type { BusinessSettings } from './types';
 
+const navLinks = [
+  { to: '/', label: 'Home' },
+  { to: '/products', label: 'Products' },
+  { to: '/services', label: 'Services' },
+  { to: '/about', label: 'About' },
+  { to: '/contact', label: 'Contact' },
+];
+
 export default function App() {
   const cartCount = useCartStore((s) => s.items.length);
   const [menuOpen, setMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const { user, isAuthenticated, isAdmin, setUser, setToken, setInitialized, signout: authSignout } = useAuthStore();
   const navigate = useNavigate();
+  const location = useLocation();
   const { data: settings } = useQuery({
     queryKey: ['business-settings'],
     queryFn: () => getSettings().then((res) => res.data as BusinessSettings),
@@ -60,6 +69,11 @@ export default function App() {
     setUserMenuOpen(false);
   };
 
+  const isActive = (path: string) => {
+    if (path === '/') return location.pathname === '/';
+    return location.pathname.startsWith(path);
+  };
+
   return (
     <div className="min-h-screen bg-white flex flex-col">
       {/* Header */}
@@ -75,13 +89,31 @@ export default function App() {
             </Link>
 
             {/* Desktop nav */}
-            <nav className="hidden md:flex items-center gap-8">
-              <Link to="/products" className="text-gray-600 hover:text-primary-900">Products</Link>
-              <Link to="/services" className="text-gray-600 hover:text-primary-900">Services</Link>
-              <Link to="/about" className="text-gray-600 hover:text-primary-900">About</Link>
-              <Link to="/contact" className="text-gray-600 hover:text-primary-900">Contact</Link>
+            <nav className="hidden md:flex items-center gap-1">
+              {navLinks.map(({ to, label }) => (
+                <Link
+                  key={to}
+                  to={to}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    isActive(to)
+                      ? 'text-accent bg-accent/10'
+                      : 'text-gray-600 hover:text-primary-900 hover:bg-gray-50'
+                  }`}
+                >
+                  {label}
+                </Link>
+              ))}
               {isAuthenticated && isAdmin && (
-                <Link to="/admin" className="text-gray-600 hover:text-primary-900">Admin</Link>
+                <Link
+                  to="/admin"
+                  className={`ml-1 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    isActive('/admin')
+                      ? 'text-accent bg-accent/10'
+                      : 'text-gray-600 hover:text-primary-900 hover:bg-gray-50'
+                  }`}
+                >
+                  Admin
+                </Link>
               )}
             </nav>
 
@@ -166,13 +198,33 @@ export default function App() {
 
         {/* Mobile menu */}
         {menuOpen && (
-          <div className="md:hidden border-t border-gray-200 py-4 px-4 space-y-3">
-            <Link to="/products" className="block text-gray-600" onClick={() => setMenuOpen(false)}>Products</Link>
-            <Link to="/services" className="block text-gray-600" onClick={() => setMenuOpen(false)}>Services</Link>
-            <Link to="/about" className="block text-gray-600" onClick={() => setMenuOpen(false)}>About</Link>
-            <Link to="/contact" className="block text-gray-600" onClick={() => setMenuOpen(false)}>Contact</Link>
+          <div className="md:hidden border-t border-gray-200 py-4 px-4 space-y-1">
+            {navLinks.map(({ to, label }) => (
+              <Link
+                key={to}
+                to={to}
+                className={`block px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
+                  isActive(to)
+                    ? 'text-accent bg-accent/10'
+                    : 'text-gray-600 hover:text-primary-900 hover:bg-gray-50'
+                }`}
+                onClick={() => setMenuOpen(false)}
+              >
+                {label}
+              </Link>
+            ))}
             {isAuthenticated && isAdmin && (
-              <Link to="/admin" className="block text-gray-600" onClick={() => setMenuOpen(false)}>Admin</Link>
+              <Link
+                to="/admin"
+                className={`block px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
+                  isActive('/admin')
+                    ? 'text-accent bg-accent/10'
+                    : 'text-gray-600 hover:text-primary-900 hover:bg-gray-50'
+                }`}
+                onClick={() => setMenuOpen(false)}
+              >
+                Admin
+              </Link>
             )}
           </div>
         )}

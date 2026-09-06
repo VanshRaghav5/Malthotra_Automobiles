@@ -33,15 +33,6 @@ export default function AboutPage() {
         ))}
       </div>
 
-      <div className="mt-12 bg-gray-50 rounded-xl p-8">
-        <h2 className="text-2xl font-bold text-primary-900 mb-4">Visit Us</h2>
-        <div className="space-y-2 text-gray-600">
-          <p><strong>Address:</strong> Malhotra Automobiles, Your City</p>
-          <p><strong>Phone:</strong> +91 XXXXX XXXXX</p>
-          <p><strong>Email:</strong> info@malhotraautomobiles.com</p>
-          <p><strong>Hours:</strong> Mon-Sat 9AM - 7PM | Sunday Closed</p>
-        </div>
-      </div>
     </div>
   );
 }
