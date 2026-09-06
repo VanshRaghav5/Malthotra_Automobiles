@@ -1,6 +1,4 @@
-server/database/migrations/001_initial_schema.sql
--- Malhotra Automobiles - Initial Database Schema
--- Run this against your Supabase project
+
 
 -- Enable UUID extension
 create extension if not exists "uuid-ossp";
@@ -269,8 +267,26 @@ create policy "Admins can update conversations" on conversations for update to a
 -- Messages RLS
 create policy "Customers can view messages in their conversations" on messages for select to authenticated using (auth.uid() = (select auth_user_id from profiles where id = (select customer_id from conversations where id = conversation_id)));
 create policy "Admins can view all messages" on messages for select to authenticated using (exists (select 1 from profiles where auth_user_id = auth.uid() and role = 'admin'));
-create policy "Customers can send messages" on messages for insert to authenticated with check (auth.uid() = (select auth_user_id from profiles where id = customer_id));
-create policy "Admins can send messages" on messages for insert to authenticated using (exists (select 1 from profiles where auth_user_id = auth.uid() and role = 'admin'));
+create policy "Customers can send messages" on messages
+for insert to authenticated
+with check (
+  auth.uid() = (
+    select p.auth_user_id
+    from profiles p
+    join conversations c on c.customer_id = p.id
+    where c.id = messages.conversation_id
+  )
+);
+create policy "Admins can send messages" on messages
+for insert to authenticated
+with check (
+  exists (
+    select 1
+    from profiles
+    where auth_user_id = auth.uid()
+    and role = 'admin'
+  )
+);
 
 -- Notifications RLS
 create policy "Users can view their own notifications" on notifications for select to authenticated using (auth.uid() = (select auth_user_id from profiles where id = recipient_id));

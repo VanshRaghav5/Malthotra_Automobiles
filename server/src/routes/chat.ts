@@ -16,13 +16,13 @@ const chatRouter = () => {
     const user = req.user;
     if (!user) return res.status(401).json({ error: 'Unauthorized' });
 
-    const is-admin = user.role === 'admin';
+    const isAdmin = user.role === 'admin';
     const query = supabase
       .from('conversations')
-      .select('*, messages(count)', is-admin ? undefined : { count: false })
+      .select('*, messages(count)', isAdmin ? undefined : { count: false })
       .order('updated_at', { ascending: false });
 
-    if (!is-admin) {
+    if (!isAdmin) {
       query.eq('customer_id', user.id);
     }
 
