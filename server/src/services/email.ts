@@ -2,7 +2,9 @@ import { Resend } from 'resend';
 import { config } from '../config';
 import type { Request } from '../types';
 
-const resend = new Resend(config.RESEND_API_KEY);
+function getResend() {
+  return new Resend(config.RESEND_API_KEY);
+}
 
 export async function sendRequestConfirmation(
   toEmail: string,
@@ -23,7 +25,7 @@ export async function sendRequestConfirmation(
     <p>Best regards,<br>Malhotra Automobiles</p>
   `;
 
-  await resend.emails.send({
+  await getResend().emails.send({
     from: config.FROM_EMAIL,
     to: toEmail,
     subject: `Request ${request.request_number} - Malhotra Automobiles`,
@@ -52,7 +54,7 @@ export async function sendStatusUpdate(
     <p>Best regards,<br>Malhotra Automobiles</p>
   `;
 
-  await resend.emails.send({
+  await getResend().emails.send({
     from: config.FROM_EMAIL,
     to: toEmail,
     subject: `Request ${request.request_number} - Status Update`,
