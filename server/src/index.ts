@@ -52,8 +52,8 @@ app.get('/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// 404 handler
-app.use('/*', (_req, res) => {
+// 404 handler (Express 5 compatible)
+app.use((_req, res) => {
   res.status(404).json({ error: 'Not found' });
 });
 
