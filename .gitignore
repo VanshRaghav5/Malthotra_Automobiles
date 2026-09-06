@@ -49,3 +49,4 @@ __tests__/__snapshots__/
 # Cache
 .cache/
 .vite/
+supabase/.temp/
