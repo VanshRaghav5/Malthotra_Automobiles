@@ -53,7 +53,7 @@ app.get('/health', (_req, res) => {
 });
 
 // 404 handler
-app.use('*', (_req, res) => {
+app.use('/*', (_req, res) => {
   res.status(404).json({ error: 'Not found' });
 });
 
