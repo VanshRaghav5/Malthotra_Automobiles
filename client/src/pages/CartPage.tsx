@@ -31,7 +31,7 @@ export default function CartPage() {
             <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
               {product.product_images?.[0]?.storage_path ? (
                 <img
-                  src={`https://rlmmyueiqqegelkvxjxa.supabase.co/storage/v1/object/public/product-images/₹{product.product_images[0].storage_path}`}
+                  src={`https://rlmmyueiqqegelkvxjxa.supabase.co/storage/v1/object/public/product-images/${product.product_images[0].storage_path}`} loading="lazy"
                   alt={product.name}
                   className="w-full h-full object-cover"
                 />

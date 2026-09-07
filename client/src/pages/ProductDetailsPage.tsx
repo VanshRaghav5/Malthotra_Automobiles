@@ -48,7 +48,7 @@ export default function ProductDetailsPage() {
         <div className="aspect-square bg-gray-100 rounded-2xl flex items-center justify-center overflow-hidden">
           {product.product_images?.[0]?.storage_path ? (
             <img
-              src={`https://rlmmyueiqqegelkvxjxa.supabase.co/storage/v1/object/public/product-images/${product.product_images[0].storage_path}`}
+              src={`https://rlmmyueiqqegelkvxjxa.supabase.co/storage/v1/object/public/product-images/${product.product_images[0].storage_path}`} loading="lazy"
               alt={product.name}
               className="w-full h-full object-cover"
             />
@@ -63,8 +63,8 @@ export default function ProductDetailsPage() {
           <h1 className="text-3xl font-bold text-primary-900 mt-2">{product.name}</h1>
           <p className="text-2xl text-accent font-bold mt-4">
             {product.discount_price
-              ? `₹{product.discount_price.toFixed(2)}`
-              : `₹{product.price.toFixed(2)}`}
+              ? `₹${product.discount_price.toFixed(2)}`
+              : `₹${product.price.toFixed(2)}`}
           </p>
 
           <div className="flex items-center gap-2 mt-3">

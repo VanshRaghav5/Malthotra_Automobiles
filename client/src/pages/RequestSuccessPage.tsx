@@ -53,7 +53,7 @@ export default function RequestSuccessPage() {
       <div className="bg-white border border-gray-200 rounded-xl p-6 space-y-4">
         <div className="flex justify-between items-center pb-4 border-b border-gray-100">
           <span className="text-gray-500">Status</span>
-          <span className={`px-3 py-1 rounded-full text-sm font-medium ₹{statusColors[request.status] || 'bg-gray-100'}`}>
+          <span className={`px-3 py-1 rounded-full text-sm font-medium ${statusColors[request.status] || 'bg-gray-100'}`}>
             {request.status.replace('_', ' ')}
           </span>
         </div>

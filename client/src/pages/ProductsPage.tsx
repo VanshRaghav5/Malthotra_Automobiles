@@ -69,7 +69,7 @@ export default function ProductsPage() {
               <div className="aspect-square bg-gray-100 flex items-center justify-center overflow-hidden">
                 {product.product_images?.[0]?.storage_path ? (
                   <img
-                    src={`https://rlmmyueiqqegelkvxjxa.supabase.co/storage/v1/object/public/product-images/${product.product_images[0].storage_path}`}
+                    src={`https://rlmmyueiqqegelkvxjxa.supabase.co/storage/v1/object/public/product-images/${product.product_images[0].storage_path}`} loading="lazy"
                     alt={product.name}
                     className="w-full h-full object-cover"
                   />

@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { getServices, createService, updateService, createSlot, deleteSlot, deleteService } from '../../lib/api';
+import { getServices, createService, updateService, createSlot, deleteSlot, deleteService, uploadServiceImage } from '../../lib/api';
 import type { Service } from '../../types';
-import { Plus, Calendar, Clock, Trash2, X, Check } from 'lucide-react';
+import { Plus, Calendar, Clock, Trash2, X, Check, Camera, Upload } from 'lucide-react';
+
+const SERVICE_IMAGE_URL = 'https://rlmmyueiqqegelkvxjxa.supabase.co/storage/v1/object/public/product-images';
 
 export default function AdminServices() {
   const queryClient = useQueryClient();
@@ -12,6 +14,7 @@ export default function AdminServices() {
   const [form, setForm] = useState({ name: '', description: '', duration_minutes: '', price: '' });
   const [saving, setSaving] = useState(false);
   const [slotForm, setSlotForm] = useState({ date: '', start_time: '', end_time: '', capacity: '1' });
+  const [uploadingImage, setUploadingImage] = useState<string | null>(null);
 
   const { data: services, isLoading } = useQuery({
     queryKey: ['admin-services'],
@@ -49,6 +52,63 @@ export default function AdminServices() {
     } catch (err: any) {
       alert(err.response?.data?.error || 'Failed to delete service');
     }
+  };
+
+  const handleImageUpload = async (serviceId: string, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file');
+      return;
+    }
+
+    // Compress image before upload
+    try {
+      const compressed = await compressImage(file, 800, 0.8);
+      setUploadingImage(serviceId);
+      await uploadServiceImage(serviceId, compressed);
+      queryClient.invalidateQueries({ queryKey: ['admin-services'] });
+    } catch (err: any) {
+      alert(err.response?.data?.error || 'Failed to upload image');
+    } finally {
+      setUploadingImage(null);
+      e.target.value = '';
+    }
+  };
+
+  const compressImage = (file: File, maxWidth: number, quality: number): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+
+          if (width > maxWidth) {
+            height = (height * maxWidth) / width;
+            width = maxWidth;
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            reject(new Error('Failed to get canvas context'));
+            return;
+          }
+          ctx.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL('image/jpeg', quality));
+        };
+        img.onerror = reject;
+        img.src = e.target?.result as string;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
   };
 
   const resetForm = () => {
@@ -95,34 +155,74 @@ export default function AdminServices() {
 
       {showForm && (
         <form onSubmit={handleServiceSubmit} className="bg-white border border-gray-200 rounded-xl p-6 mb-8 space-y-4">
-          <div className="flex items-center justify-between"><h2 className="text-lg font-semibold text-primary-900">{editingId ? 'Edit Service' : 'New Service'}</h2><button type="button" onClick={resetForm} className="text-gray-400">Close</button></div>
+          <div className="flex items-center justify-between"><h2 className="text-lg font-semibold text-primary-900">{editingId ? 'Edit Service' : 'New Service'}</h2><button type="button" onClick={resetForm} className="text-gray-400 hover:text-gray-600">Close</button></div>
           <div className="grid sm:grid-cols-2 gap-4">
             <div><label className="block text-sm font-medium text-gray-700 mb-1">Name *</label><input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="w-full border border-gray-300 rounded-lg px-4 py-2" /></div>
             <div><label className="block text-sm font-medium text-gray-700 mb-1">Duration (minutes) *</label><input required min="1" type="number" value={form.duration_minutes} onChange={(e) => setForm({ ...form, duration_minutes: e.target.value })} className="w-full border border-gray-300 rounded-lg px-4 py-2" /></div>
-            <div><label className="block text-sm font-medium text-gray-700 mb-1">Price *</label><input required min="0.01" step="0.01" type="number" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} className="w-full border border-gray-300 rounded-lg px-4 py-2" /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Price (₹) *</label><input required min="0.01" step="0.01" type="number" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} className="w-full border border-gray-300 rounded-lg px-4 py-2" /></div>
           </div>
           <div><label className="block text-sm font-medium text-gray-700 mb-1">Description</label><textarea rows={3} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="w-full border border-gray-300 rounded-lg px-4 py-2" /></div>
-          <div className="flex gap-3"><button type="submit" disabled={saving} className="inline-flex items-center gap-2 bg-accent text-white px-5 py-2 rounded-lg disabled:bg-gray-400"><Plus size={16} />{saving ? 'Saving...' : editingId ? 'Save Changes' : 'Create Service'}</button><button type="button" onClick={resetForm} className="border border-gray-300 px-5 py-2 rounded-lg">Cancel</button></div>
+          <div className="flex gap-3"><button type="submit" disabled={saving} className="inline-flex items-center gap-2 bg-accent text-white px-5 py-2 rounded-lg disabled:bg-gray-400"><Plus size={16} />{saving ? 'Saving...' : editingId ? 'Save Changes' : 'Create Service'}</button><button type="button" onClick={resetForm} className="border border-gray-300 px-5 py-2 rounded-lg hover:bg-gray-50">Cancel</button></div>
         </form>
       )}
 
       {isLoading ? (
         <div className="space-y-4">
           {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="animate-pulse bg-white h-20 rounded-lg" />
+            <div key={i} className="animate-pulse bg-white h-24 rounded-lg" />
           ))}
         </div>
       ) : (
         <div className="space-y-4">
           {services?.map((service: Service) => (
             <div key={service.id} className="bg-white border border-gray-200 rounded-xl p-6">
-              <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="text-lg font-semibold text-primary-900">{service.name}</h3>
-                  {service.description && (
-                    <p className="text-gray-500 text-sm mt-1">{service.description}</p>
+              <div className="flex items-start gap-4">
+                {/* Service Image */}
+                <div className="w-32 h-24 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center relative group">
+                  {service.image ? (
+                    <img
+                      src={`${SERVICE_IMAGE_URL}/${service.image}`}
+                      alt={service.name}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <Calendar size={32} className="text-gray-400" />
                   )}
-                  <div className="flex items-center gap-4 mt-3 text-sm text-gray-500">
+                  <label className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => handleImageUpload(service.id, e)}
+                      disabled={uploadingImage === service.id}
+                    />
+                    {uploadingImage === service.id ? (
+                      <span className="text-white text-xs">Uploading...</span>
+                    ) : (
+                      <Camera size={20} className="text-white" />
+                    )}
+                  </label>
+                </div>
+
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h3 className="text-lg font-semibold text-primary-900">{service.name}</h3>
+                      {service.description && (
+                        <p className="text-gray-500 text-sm mt-1 line-clamp-2">{service.description}</p>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1 flex-shrink-0 ml-4">
+                      <button onClick={() => startEdit(service)} className="p-1.5 text-gray-400 hover:text-accent rounded hover:bg-gray-100" title="Edit service">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                      </button>
+                      <button onClick={() => handleDeleteService(service.id)} className="p-1.5 text-gray-400 hover:text-red-500 rounded hover:bg-gray-100" title="Delete service">
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-4 mt-3 text-sm text-gray-500">
                     <span className="flex items-center gap-1"><Clock size={14} /> {service.duration_minutes} min</span>
                     <span className="font-medium text-accent">₹{service.price.toFixed(2)}</span>
                     <span>{service.availability_slots?.filter((slot) => slot.status === 'available').length || 0} available slots</span>
@@ -130,14 +230,6 @@ export default function AdminServices() {
                       {service.active ? 'Active' : 'Inactive'}
                     </span>
                   </div>
-                </div>
-                <div className="flex items-center gap-1">
-                  <button onClick={() => startEdit(service)} className="p-1.5 text-gray-400 hover:text-accent rounded hover:bg-gray-100" title="Edit service">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                  </button>
-                  <button onClick={() => handleDeleteService(service.id)} className="p-1.5 text-gray-400 hover:text-red-500 rounded hover:bg-gray-100" title="Delete service">
-                    <Trash2 size={16} />
-                  </button>
                 </div>
               </div>
 

@@ -217,7 +217,7 @@ export default function AdminProducts() {
                 <tr key={product.id} className="border-b border-gray-100 hover:bg-gray-50">
                   <td className="px-6 py-4">
                     {product.product_images?.[0]?.storage_path ? (
-                      <img src={`https://rlmmyueiqqegelkvxjxa.supabase.co/storage/v1/object/public/product-images/${product.product_images[0].storage_path}`}
+                      <img src={`https://rlmmyueiqqegelkvxjxa.supabase.co/storage/v1/object/public/product-images/${product.product_images[0].storage_path}`} loading="lazy"
                         alt={product.name} className="w-16 h-16 object-cover rounded-lg" />
                     ) : (
                       <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center">

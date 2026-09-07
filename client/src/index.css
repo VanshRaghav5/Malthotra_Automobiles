@@ -21,4 +21,13 @@ input,
 textarea,
 select {
   -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+img {
+  -webkit-user-drag: none;
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  -o-user-drag: none;
+  user-drag: none;
 }

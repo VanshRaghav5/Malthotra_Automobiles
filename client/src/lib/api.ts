@@ -128,6 +128,9 @@ export const uploadProductImage = (productId: string, base64Image: string) =>
 export const deleteProductImage = (productId: string, imageId: string) =>
   api.delete(`/products/${productId}/images/${imageId}`);
 
+export const uploadServiceImage = (serviceId: string, base64Image: string) =>
+  api.post(`/services/${serviceId}/image`, { image: base64Image });
+
 export const createService = (data: Record<string, any>) => api.post('/services', data);
 
 export const updateService = (id: string, data: Record<string, any>) =>
