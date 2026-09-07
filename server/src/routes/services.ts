@@ -162,6 +162,23 @@ const servicesRouter = () => {
     res.json({ success: true });
   });
 
+  // POST /api/v1/services/:id/image - Upload service image (base64)
+  router.post('/:id/image', authMiddleware, async (req: AuthRequest, res: Response) => {
+    if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin access required' });
+    const { image } = req.body as { image?: string };
+    if (!image) return res.status(400).json({ error: 'Image data required' });
+
+    const base64Data = image.replace(/^data:image\/\w+;base64,/, '');
+    const buffer = Buffer.from(base64Data, 'base64');
+    const fileName = `services/${req.params.id}/${Date.now()}.jpg`;
+    const { error: uploadError } = await supabase.storage.from('product-images').upload(fileName, buffer, { contentType: 'image/jpeg' });
+    if (uploadError) return res.status(500).json({ error: 'Upload failed' });
+
+    const { data, error } = await supabase.from('services').update({ image: fileName }).eq('id', req.params.id).select().single();
+    if (error) return res.status(500).json({ error: error.message });
+    res.json(data);
+  });
+
   // Admin: DELETE /api/v1/services/:id - Delete service
   router.delete('/:id', authMiddleware, async (req: AuthRequest, res: Response) => {
     if (!req.user || req.user.role !== 'admin') {

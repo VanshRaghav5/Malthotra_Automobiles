@@ -6,8 +6,8 @@ import type { Service } from '../types';
 
 export default function HomePage() {
   const { data: services } = useQuery({
-    queryKey: ['services'],
-    queryFn: () => getServices().then((r) => r.data?.slice(0, 4) || []),
+    queryKey: ['featured-services'],
+    queryFn: () => getServices().then((r) => (r.data || []).slice(0, 4)),
   });
 
   return (
