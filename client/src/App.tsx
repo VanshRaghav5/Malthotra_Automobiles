@@ -1,5 +1,5 @@
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
-import { MessageCircle, Menu, X, User, LogOut } from 'lucide-react';
+import { Menu, X, User, LogOut } from 'lucide-react';
 import { useAuthStore } from './stores/authStore';
 import { signout, getMe } from './lib/api';
 import { useState, useEffect } from 'react';
@@ -118,15 +118,6 @@ export default function App() {
             <div className="flex items-center gap-3">
               {isAuthenticated ? (
                 <>
-                  {/* Chat button */}
-                  <button
-                    onClick={() => navigate('/chat')}
-                    className="p-2 text-gray-600 hover:text-primary-900"
-                    aria-label="Chat"
-                  >
-                    <MessageCircle size={20} />
-                  </button>
-
                   {/* User menu */}
                   <div className="relative">
                     <button

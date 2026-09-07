@@ -63,8 +63,8 @@ export default function ProductDetailsPage() {
           <h1 className="text-3xl font-bold text-primary-900 mt-2">{product.name}</h1>
           <p className="text-2xl text-accent font-bold mt-4">
             {product.discount_price
-              ? `$${product.discount_price.toFixed(2)}`
-              : `$${product.price.toFixed(2)}`}
+              ? `₹{product.discount_price.toFixed(2)}`
+              : `₹{product.price.toFixed(2)}`}
           </p>
 
           <div className="flex items-center gap-2 mt-3">

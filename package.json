@@ -2,7 +2,7 @@
   "name": "malhotra-automobiles",
   "version": "0.1.0",
   "private": true,
-  "description": "Professional automobile business platform with product requests, service booking, real-time chat, and admin dashboard",
+  "description": "Professional automobile business platform with service booking and admin dashboard",
   "type": "module",
   "workspaces": [
     "server",

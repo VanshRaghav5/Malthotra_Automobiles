@@ -31,7 +31,7 @@ export default function CartPage() {
             <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
               {product.product_images?.[0]?.storage_path ? (
                 <img
-                  src={`https://rlmmyueiqqegelkvxjxa.supabase.co/storage/v1/object/public/product-images/${product.product_images[0].storage_path}`}
+                  src={`https://rlmmyueiqqegelkvxjxa.supabase.co/storage/v1/object/public/product-images/₹{product.product_images[0].storage_path}`}
                   alt={product.name}
                   className="w-full h-full object-cover"
                 />
@@ -43,7 +43,7 @@ export default function CartPage() {
               <h3 className="font-medium text-primary-900 truncate">{product.name}</h3>
               <p className="text-sm text-gray-500">{product.brand}</p>
               <p className="text-accent font-bold mt-1">
-                ${product.price.toFixed(2)}
+                ₹{product.price.toFixed(2)}
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -72,7 +72,7 @@ export default function CartPage() {
       <div className="mt-8 bg-gray-50 rounded-xl p-6">
         <div className="flex justify-between items-center mb-4">
           <span className="text-gray-600">Estimated Total</span>
-          <span className="text-2xl font-bold text-primary-900">${total().toFixed(2)}</span>
+          <span className="text-2xl font-bold text-primary-900">₹{total().toFixed(2)}</span>
         </div>
         <p className="text-sm text-gray-500 mb-6">
           Payment is completed at the business. This request reserves the products you selected.

@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Package, Wrench, Settings } from 'lucide-react';
+import { LayoutDashboard, Wrench, Settings } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
 export default function AdminLayout() {

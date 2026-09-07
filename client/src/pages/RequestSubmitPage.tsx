@@ -56,14 +56,14 @@ export default function RequestSubmitPage() {
             {items.map(({ product, quantity }) => (
               <li key={product.id} className="flex justify-between text-sm">
                 <span>{product.name} × {quantity}</span>
-                <span className="font-medium">${(product.price * quantity).toFixed(2)}</span>
+                <span className="font-medium">₹{(product.price * quantity).toFixed(2)}</span>
               </li>
             ))}
           </ul>
           <div className="mt-4 pt-4 border-t border-gray-200 flex justify-between font-bold">
             <span>Estimated Total</span>
             <span className="text-accent">
-              ${items.reduce((sum, i) => sum + i.product.price * i.quantity, 0).toFixed(2)}
+              ₹{items.reduce((sum, i) => sum + i.product.price * i.quantity, 0).toFixed(2)}
             </span>
           </div>
         </div>

@@ -117,7 +117,7 @@ export default function AdminDashboard() {
                       {req.status.replace('_', ' ')}
                     </span>
                     <span className="text-sm text-gray-500">
-                      ${req.estimated_total?.toFixed(2) || '0.00'}
+                      ₹{req.estimated_total?.toFixed(2) || '0.00'}
                     </span>
                     <button
                       onClick={() => setExpandedId(expandedId === req.id ? null : req.id)}

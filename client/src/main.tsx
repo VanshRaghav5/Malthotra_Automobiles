@@ -6,7 +6,6 @@ import App from './App';
 import HomePage from './pages/HomePage';
 import ServicesPage from './pages/ServicesPage';
 import RequestSuccessPage from './pages/RequestSuccessPage';
-import ChatPage from './pages/ChatPage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import ServiceBookingPage from './pages/ServiceBookingPage';
@@ -41,7 +40,6 @@ export default function Root() {
             <Route path="services" element={<ServicesPage />} />
             <Route path="services/book/:slug" element={<ServiceBookingPage />} />
             <Route path="request/:number" element={<RequestSuccessPage />} />
-            <Route path="chat" element={<ChatPage />} />
             <Route path="login" element={<LoginPage />} />
             <Route path="signup" element={<SignupPage />} />
             <Route path="about" element={<AboutPage />} />

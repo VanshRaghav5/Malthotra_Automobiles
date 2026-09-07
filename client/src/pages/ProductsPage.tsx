@@ -84,8 +84,8 @@ export default function ProductsPage() {
                 </h3>
                 <p className="text-accent font-bold mt-2">
                   {product.discount_price
-                    ? `$${product.discount_price.toFixed(2)}`
-                    : `$${product.price.toFixed(2)}`}
+                    ? `₹{product.discount_price.toFixed(2)}`
+                    : `₹{product.price.toFixed(2)}`}
                 </p>
               </div>
             </Link>
