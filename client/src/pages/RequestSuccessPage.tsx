@@ -53,7 +53,7 @@ export default function RequestSuccessPage() {
       <div className="bg-white border border-gray-200 rounded-xl p-6 space-y-4">
         <div className="flex justify-between items-center pb-4 border-b border-gray-100">
           <span className="text-gray-500">Status</span>
-          <span className={`px-3 py-1 rounded-full text-sm font-medium ${statusColors[request.status] || 'bg-gray-100'}`}>
+          <span className={`px-3 py-1 rounded-full text-sm font-medium ₹{statusColors[request.status] || 'bg-gray-100'}`}>
             {request.status.replace('_', ' ')}
           </span>
         </div>
@@ -61,7 +61,7 @@ export default function RequestSuccessPage() {
         {request.estimated_total !== null && (
           <div className="flex justify-between items-center pb-4 border-b border-gray-100">
             <span className="text-gray-500">Estimated Total</span>
-            <span className="font-bold text-primary-900">${request.estimated_total.toFixed(2)}</span>
+            <span className="font-bold text-primary-900">₹{request.estimated_total.toFixed(2)}</span>
           </div>
         )}
 
@@ -74,7 +74,7 @@ export default function RequestSuccessPage() {
               {request.request_items.map((item: any) => (
                 <li key={item.id} className="flex justify-between text-sm">
                   <span>{item.products?.name || item.product_id} x{item.quantity}</span>
-                  <span className="font-medium">${(item.unit_price_snapshot * item.quantity).toFixed(2)}</span>
+                  <span className="font-medium">₹{(item.unit_price_snapshot * item.quantity).toFixed(2)}</span>
                 </li>
               ))}
             </ul>

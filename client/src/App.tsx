@@ -1,6 +1,5 @@
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { MessageCircle, Menu, X, User, LogOut } from 'lucide-react';
-import { useCartStore } from './stores/cartStore';
 import { useAuthStore } from './stores/authStore';
 import { signout, getMe } from './lib/api';
 import { useState, useEffect } from 'react';
@@ -10,14 +9,12 @@ import type { BusinessSettings } from './types';
 
 const navLinks = [
   { to: '/', label: 'Home' },
-  { to: '/products', label: 'Products' },
   { to: '/services', label: 'Services' },
   { to: '/about', label: 'About' },
   { to: '/contact', label: 'Contact' },
 ];
 
 export default function App() {
-  const cartCount = useCartStore((s) => s.items.length);
   const [menuOpen, setMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const { user, isAuthenticated, isAdmin, setUser, setToken, setInitialized, signout: authSignout } = useAuthStore();
@@ -250,7 +247,6 @@ export default function App() {
             <div>
               <h4 className="font-semibold mb-4">Quick Links</h4>
               <ul className="space-y-2 text-sm text-gray-400">
-                <li><Link to="/products" className="hover:text-white">Products</Link></li>
                 <li><Link to="/services" className="hover:text-white">Services</Link></li>
               </ul>
             </div>

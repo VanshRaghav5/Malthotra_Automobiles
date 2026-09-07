@@ -30,7 +30,7 @@ export default function ServicesPage() {
               <h2 className="text-xl font-semibold text-primary-900">{service.name}</h2>
               <div className="flex items-center gap-4 mt-2 text-gray-500 text-sm">
                 <span className="flex items-center gap-1"><Clock size={14} /> {service.duration_minutes} min</span>
-                <span className="text-accent font-bold text-lg">${service.price.toFixed(2)}</span>
+                <span className="text-accent font-bold text-lg">₹{service.price.toFixed(2)}</span>
               </div>
               {service.description && (
                 <p className="text-sm text-gray-500 mt-3 line-clamp-2">{service.description}</p>

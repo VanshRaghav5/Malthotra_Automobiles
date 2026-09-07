@@ -52,7 +52,7 @@ export default function MyRequestsPage() {
 
       <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
         <p className="text-sm text-blue-700">
-          Welcome back, <strong>{user?.name}</strong>. Here are your submitted product requests and service bookings.
+          Welcome back, <strong>{user?.name}</strong>. Here are your service bookings.
         </p>
       </div>
 
@@ -82,7 +82,7 @@ export default function MyRequestsPage() {
                       <Clock size={14} /> {new Date(req.created_at).toLocaleDateString()}
                     </span>
                     <span className="font-bold text-primary-900">
-                      ${req.estimated_total?.toFixed(2) || '0.00'}
+                      ₹{req.estimated_total?.toFixed(2) || '0.00'}
                     </span>
                   </div>
                 </div>
@@ -115,10 +115,10 @@ export default function MyRequestsPage() {
             <Package size={36} className="mx-auto text-gray-300 mb-2" />
             <p className="text-gray-500 text-sm mb-4">You haven&apos;t submitted any requests yet.</p>
             <Link
-              to="/products"
+              to="/services"
               className="inline-flex items-center gap-2 bg-accent text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-accent-hover"
             >
-              Browse Products
+              Book a Service
             </Link>
           </div>
         )}

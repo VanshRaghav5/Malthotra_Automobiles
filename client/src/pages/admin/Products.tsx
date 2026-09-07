@@ -242,7 +242,7 @@ export default function AdminProducts() {
                   </td>
                   <td className="px-6 py-4 font-medium">{product.name}</td>
                   <td className="px-6 py-4 text-gray-500">{product.brand || '-'}</td>
-                  <td className="px-6 py-4">${product.price.toFixed(2)}</td>
+                  <td className="px-6 py-4">₹{product.price.toFixed(2)}</td>
                   <td className="px-6 py-4">
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                       product.published ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'

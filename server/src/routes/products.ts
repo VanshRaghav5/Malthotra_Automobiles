@@ -2,6 +2,15 @@ import { Router, Response } from 'express';
 import { z } from 'zod';
 import { getSupabase } from '../lib/supabase';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
+import { config } from '../config';
+
+// Guard: disable products if feature flag is set
+const assertProductsEnabled = (res: Response) => {
+  if (config.PRODUCTS_ENABLED === false) {
+    return res.status(404).json({ error: 'Not found' });
+  }
+  return null;
+};
 
 const productSchema = z.object({
   name: z.string().min(1),
@@ -25,6 +34,7 @@ const productsRouter = () => {
 
   // GET /api/v1/products
   router.get('/', async (_req: AuthRequest, res: Response) => {
+    if (assertProductsEnabled(res)) return;
     const { category, brand, search, sort = 'name', order = 'asc', page = '1', limit = '12' } = _req.query;
     let query = supabase.from('products').select('*, categories(name, slug)', { count: 'exact' })
       .eq('published', true).order(sort as string, { ascending: order === 'asc' });
@@ -41,6 +51,7 @@ const productsRouter = () => {
 
   // GET /api/v1/products/categories
   router.get('/categories', async (_req: AuthRequest, res: Response) => {
+    if (assertProductsEnabled(res)) return;
     const { data, error } = await supabase.from('categories').select('*').eq('active', true).order('name');
     if (error) return res.status(500).json({ error: error.message });
     res.json(data);
@@ -48,6 +59,7 @@ const productsRouter = () => {
 
   // GET /api/v1/products/:slug
   router.get('/:slug', async (req: AuthRequest, res: Response) => {
+    if (assertProductsEnabled(res)) return;
     const { data, error } = await supabase.from('products').select('*, categories(*), product_images(*)')
       .eq('slug', req.params.slug).eq('published', true).single();
     if (error || !data) return res.status(404).json({ error: 'Product not found' });
@@ -56,6 +68,7 @@ const productsRouter = () => {
 
   // POST /api/v1/products
   router.post('/', authMiddleware, async (req: AuthRequest, res: Response) => {
+    if (assertProductsEnabled(res)) return;
     if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin access required' });
     const parsed = productSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ error: parsed.error.issues });
@@ -67,6 +80,7 @@ const productsRouter = () => {
 
   // PATCH /api/v1/products/:id
   router.patch('/:id', authMiddleware, async (req: AuthRequest, res: Response) => {
+    if (assertProductsEnabled(res)) return;
     if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin access required' });
     const parsed = productSchema.partial().safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ error: parsed.error.issues });
@@ -77,6 +91,7 @@ const productsRouter = () => {
 
   // DELETE /api/v1/products/:id
   router.delete('/:id', authMiddleware, async (req: AuthRequest, res: Response) => {
+    if (assertProductsEnabled(res)) return;
     if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin access required' });
     const { error } = await supabase.from('products').update({ published: false }).eq('id', req.params.id);
     if (error) return res.status(500).json({ error: error.message });
@@ -85,6 +100,7 @@ const productsRouter = () => {
 
   // POST /api/v1/products/:id/images - Upload product image (base64)
   router.post('/:id/images', authMiddleware, async (req: AuthRequest, res: Response) => {
+    if (assertProductsEnabled(res)) return;
     if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin access required' });
     const { image } = req.body as { image?: string };
     if (!image) return res.status(400).json({ error: 'Image data required' });
@@ -115,6 +131,7 @@ const productsRouter = () => {
 
   // DELETE /api/v1/products/:id/images/:imageId
   router.delete('/:id/images/:imageId', authMiddleware, async (req: AuthRequest, res: Response) => {
+    if (assertProductsEnabled(res)) return;
     if (!req.user || req.user.role !== 'admin') return res.status(403).json({ error: 'Admin access required' });
     const { data: image } = await supabase.from('product_images').select('storage_path')
       .eq('id', req.params.imageId).eq('product_id', req.params.id).single();

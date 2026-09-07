@@ -58,6 +58,11 @@ const requestsRouter = () => {
       services,
     } = parsed.data;
 
+    // Reject product items if products are disabled
+    if (config.PRODUCTS_ENABLED === false && items?.length) {
+      return res.status(400).json({ error: 'Product requests are currently unavailable' });
+    }
+
     // Find or create customer profile
     let { data: profile, error: profileError } = await supabase
       .from('profiles')

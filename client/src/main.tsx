@@ -4,11 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import App from './App';
 import HomePage from './pages/HomePage';
-import ProductsPage from './pages/ProductsPage';
-import ProductDetailsPage from './pages/ProductDetailsPage';
 import ServicesPage from './pages/ServicesPage';
-import CartPage from './pages/CartPage';
-import RequestSubmitPage from './pages/RequestSubmitPage';
 import RequestSuccessPage from './pages/RequestSuccessPage';
 import ChatPage from './pages/ChatPage';
 import LoginPage from './pages/LoginPage';
@@ -42,12 +38,8 @@ export default function Root() {
         <Routes>
           <Route path="/" element={<App />}>
             <Route index element={<HomePage />} />
-            <Route path="products" element={<ProductsPage />} />
-            <Route path="products/:slug" element={<ProductDetailsPage />} />
             <Route path="services" element={<ServicesPage />} />
             <Route path="services/book/:slug" element={<ServiceBookingPage />} />
-            <Route path="cart" element={<CartPage />} />
-            <Route path="request/submit" element={<RequestSubmitPage />} />
             <Route path="request/:number" element={<RequestSuccessPage />} />
             <Route path="chat" element={<ChatPage />} />
             <Route path="login" element={<LoginPage />} />

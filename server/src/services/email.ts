@@ -46,7 +46,7 @@ export async function sendRequestConfirmation(
       <li><strong>Request ID:</strong> ${request.request_number}</li>
       <li><strong>Vehicle:</strong> ${customerInfo.vehicleMake} ${customerInfo.vehicleModel}</li>
       <li><strong>Status:</strong> ${request.status}</li>
-      <li><strong>Estimated Total:</strong> $${request.estimated_total?.toFixed(2) || '0.00'}</li>
+      <li><strong>Estimated Total:</strong> ₹${request.estimated_total?.toFixed(2) || '0.00'}</li>
     </ul>
     <p>We will review your request and get back to you shortly.</p>
     <p>Best regards,<br>Malhotra Automobiles</p>
@@ -87,7 +87,7 @@ export async function sendOwnerNotification(
     <ul>
       <li><strong>Request ID:</strong> ${request.request_number}</li>
       <li><strong>Vehicle:</strong> ${customerInfo.vehicleMake} ${customerInfo.vehicleModel}</li>
-      <li><strong>Estimated Total:</strong> $${request.estimated_total?.toFixed(2) || '0.00'}</li>
+      <li><strong>Estimated Total:</strong> ₹${request.estimated_total?.toFixed(2) || '0.00'}</li>
       <li><strong>Status:</strong> ${request.status}</li>
     </ul>
     <p>Best regards,<br>Malhotra Automobiles</p>

@@ -22,10 +22,10 @@ const aiRouter = () => {
       const { data: services } = await supabase.from('services').select('name, price, duration_minutes').limit(10);
 
       if (products) {
-        businessContext += `\nProducts: ${products.map(p => `${p.name} (${p.brand}) - $${p.price}`).join(', ')}`;
+        businessContext += `\nProducts: ${products.map(p => `${p.name} (${p.brand}) - ₹${p.price}`).join(', ')}`;
       }
       if (services) {
-        businessContext += `\nServices: ${services.map(s => `${s.name} - $${s.price} (${s.duration_minutes} min)`).join(', ')}`;
+        businessContext += `\nServices: ${services.map(s => `${s.name} - ₹${s.price} (${s.duration_minutes} min)`).join(', ')}`;
       }
     } catch (e) {
       console.error('Failed to fetch business context:', e);

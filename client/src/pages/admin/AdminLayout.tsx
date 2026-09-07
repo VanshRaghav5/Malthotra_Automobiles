@@ -7,7 +7,6 @@ export default function AdminLayout() {
 
   const navItems = [
     { to: '/admin', label: 'Dashboard', icon: LayoutDashboard },
-    { to: '/admin/products', label: 'Products', icon: Package },
     { to: '/admin/services', label: 'Services', icon: Wrench },
     { to: '/admin/settings', label: 'Settings', icon: Settings },
   ];

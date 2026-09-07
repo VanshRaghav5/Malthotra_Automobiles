@@ -124,7 +124,7 @@ export default function AdminServices() {
                   )}
                   <div className="flex items-center gap-4 mt-3 text-sm text-gray-500">
                     <span className="flex items-center gap-1"><Clock size={14} /> {service.duration_minutes} min</span>
-                    <span className="font-medium text-accent">${service.price.toFixed(2)}</span>
+                    <span className="font-medium text-accent">₹{service.price.toFixed(2)}</span>
                     <span>{service.availability_slots?.filter((slot) => slot.status === 'available').length || 0} available slots</span>
                     <span className={`px-2 py-0.5 rounded-full text-xs ${service.active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
                       {service.active ? 'Active' : 'Inactive'}

@@ -24,6 +24,9 @@ export const config = {
   FROM_EMAIL: process.env.FROM_EMAIL || 'noreply@malhotraautomobiles.com',
   OWNER_EMAIL: process.env.OWNER_EMAIL || 'info@malhotraautomobiles.com',
 
+  // Feature flags
+  PRODUCTS_ENABLED: process.env.PRODUCTS_ENABLED === 'false',
+
   // JWT (for any custom token needs)
   JWT_SECRET: process.env.JWT_SECRET || 'dev-secret-change-in-production',
 };

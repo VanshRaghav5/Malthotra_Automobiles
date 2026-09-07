@@ -2,7 +2,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getService, getServiceAvailability, submitRequest } from '../lib/api';
 import { useAuthStore } from '../stores/authStore';
-import { Calendar, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Calendar, Clock, ChevronLeft, ChevronRight, AlertTriangle } from 'lucide-react';
 import { useState } from 'react';
 import type { Service, AvailabilitySlot } from '../types';
 
@@ -17,6 +17,8 @@ export default function ServiceBookingPage() {
   const [customerPhone, setCustomerPhone] = useState(user?.phone || '');
   const [notes, setNotes] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [showDisclaimer, setShowDisclaimer] = useState(false);
+  const [acceptedDisclaimer, setAcceptedDisclaimer] = useState(false);
 
   const { data: service, isLoading: loadingService } = useQuery({
     queryKey: ['service', slug],
@@ -128,7 +130,7 @@ export default function ServiceBookingPage() {
             <Clock size={18} />
             <span>{service.duration_minutes} minutes</span>
           </div>
-          <p className="text-2xl font-bold text-accent">${service.price.toFixed(2)}</p>
+          <p className="text-2xl font-bold text-accent">₹{service.price.toFixed(2)}</p>
         </div>
       </div>
 
@@ -256,7 +258,7 @@ export default function ServiceBookingPage() {
           placeholder="Any special requirements or notes..."
         />
         <button
-          onClick={handleBook}
+          onClick={() => !selectedSlot || submitting ? null : setShowDisclaimer(true)}
           disabled={!selectedSlot || submitting}
           className="mt-4 w-full py-3 bg-accent hover:bg-accent-hover disabled:bg-gray-400 text-white rounded-lg font-medium transition-colors"
         >
@@ -268,6 +270,63 @@ export default function ServiceBookingPage() {
           </p>
         )}
       </div>
+
+      {/* Disclaimer Modal */}
+      {showDisclaimer && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-black/50" onClick={() => setShowDisclaimer(false)} />
+          <div className="relative bg-white rounded-2xl shadow-2xl max-w-md w-full p-8">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+                <AlertTriangle size={24} className="text-yellow-600" />
+              </div>
+              <h2 className="text-xl font-bold text-primary-900">Important Notice</h2>
+            </div>
+            <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-6">
+              <p className="text-sm text-yellow-800 leading-relaxed">
+                <strong>Please note:</strong> If you do not arrive at your scheduled time, your appointment will be
+                automatically cancelled and the slot released to other customers. We cannot be held responsible
+                for any inconvenience caused by no-shows. Please ensure you can attend at the booked time.
+              </p>
+            </div>
+            <label className="flex items-start gap-3 mb-6 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={acceptedDisclaimer}
+                onChange={(e) => setAcceptedDisclaimer(e.target.checked)}
+                className="mt-1 w-5 h-5 rounded border-gray-300 text-accent focus:ring-accent"
+              />
+              <span className="text-sm text-gray-700">
+                I understand and agree to the above policy
+              </span>
+            </label>
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowDisclaimer(false);
+                  setAcceptedDisclaimer(false);
+                }}
+                className="flex-1 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  if (acceptedDisclaimer) {
+                    setShowDisclaimer(false);
+                    setAcceptedDisclaimer(false);
+                    handleBook();
+                  }
+                }}
+                disabled={!acceptedDisclaimer}
+                className="flex-1 py-3 bg-accent hover:bg-accent-hover disabled:bg-gray-400 text-white rounded-lg font-medium transition-colors"
+              >
+                Confirm & Book
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
