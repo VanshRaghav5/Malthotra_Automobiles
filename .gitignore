@@ -53,3 +53,4 @@ __tests__/__snapshots__/
 .cache/
 .vite/
 supabase/.temp/
+.claude/settings.local.json
