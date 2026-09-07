@@ -23,7 +23,7 @@ npm run lint         # Lint all workspaces
 Browser → Vite (:5173) → Express (/api/v1/*) → Supabase (PostgreSQL + Auth + Realtime)
                               ↓
                         Gemini API (AI chat)
-                        Resend (email notifications)
+                        Brevo (email notifications)
 ```
 
 The frontend is a thin client. All business logic, authorization, and data mutations live in the Express server. The frontend never touches Supabase directly — it goes through the API.
@@ -32,7 +32,7 @@ The frontend is a thin client. All business logic, authorization, and data mutat
 
 - **`routes/`** — Express route handlers, one file per resource. Use `export default function` factory pattern.
 - **`middleware/`** — `auth.ts` (Bearer token validation via Supabase `getUser()`), `errorHandler.ts`, `logger.ts`.
-- **`services/`** — External integrations: `ai.ts` (Gemini), `email.ts` (Resend). Always lazy-instantiate external clients (no singleton creation at module load time).
+- **`services/`** — External integrations: `ai.ts` (Gemini), `email.ts` (Brevo). Always lazy-instantiate external clients (no singleton creation at module load time).
 - **`lib/`** — `supabase.ts` exports `getSupabase()` which caches a single client instance per process using the service-role key.
 - **`config.ts`** — Reads from `dotenv/config` (imported first in `index.ts`). All env vars go through here.
 - **`types/index.ts`** — Shared TypeScript interfaces mirroring the database schema.
@@ -67,11 +67,26 @@ Single migration file `001_initial_schema.sql`. Runs in Supabase SQL Editor. Cre
 - **TypeScript strict mode** is enabled in both workspaces. Don't add `@ts-ignore` or `any` without justification.
 - **All timestamps** stored as UTC `timestamptz`, displayed in business/customer timezone on the client.
 
-## Environment Variables
+## Deployment Quirks
+
+### Render (Backend)
+
+- Build script is `tsc && tsc-alias && node scripts/fix-esm.cjs` — the ESM fix injects `.js` extensions that TypeScript's bundler-style resolution strips.
+- Express 5 rejects bare wildcard routes (`*` or `/*`). Use parameterless middleware for catch-all handlers.
+- Health endpoint: `GET /health`
+
+### Vercel (Frontend)
+
+- `vercel.json` must include a `rewrites` entry to proxy `/api/v1/*` to the Render backend.
+- Build command: `npm install --prefix client && npm run build --prefix client` (not `cd client`).
+- Output directory: `client/dist`.
+- Logo assets go in `client/public/` and are copied to `dist/` verbatim.
+
+### Environment Variables
 
 See `.env.example`. Required for full functionality:
 - `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` — database access
 - `GEMINI_API_KEY` — AI assistant (optional; degrades gracefully)
-- `RESEND_API_KEY` — email notifications (optional; degrades gracefully)
+- `BREVO_API_KEY` + `FROM_EMAIL` + `OWNER_EMAIL` — email notifications (optional; degrades gracefully)
 
 The server starts without these keys (features are stubbed), but Supabase is required for any data operations.
