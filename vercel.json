@@ -3,6 +3,7 @@
   "outputDirectory": "client/dist",
   "installCommand": "npm install",
   "rewrites": [
-    { "source": "/api/v1/(.*)", "destination": "https://malhotra-api.onrender.com/api/v1/$1" }
+    { "source": "/api/v1/(.*)", "destination": "https://malhotra-api.onrender.com/api/v1/$1" },
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
