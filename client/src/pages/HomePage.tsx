@@ -139,8 +139,17 @@ export default function HomePage() {
 function ServiceCard({ service }: { service: Service }) {
   return (
     <Link to={`/services/book/${service.slug}`} className="block bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md transition-shadow">
-      <div className="aspect-video bg-gray-100 rounded-lg mb-4 flex items-center justify-center">
-        <Wrench size={32} className="text-gray-400" />
+      <div className="aspect-video bg-gray-100 rounded-lg mb-4 overflow-hidden">
+        {service.image ? (
+          <img
+            src={`https://rlmmyueiqqegelkvxjxa.supabase.co/storage/v1/object/public/product-images/${service.image}`}
+            alt={service.name}
+            className="w-full h-full object-cover"
+            loading="lazy"
+          />
+        ) : (
+          <div className="flex items-center justify-center w-full h-full"><Wrench size={32} className="text-gray-400" /></div>
+        )}
       </div>
       <h3 className="font-semibold text-primary-900">{service.name}</h3>
       <p className="text-sm text-gray-500 mt-1">{service.duration_minutes} min</p>
