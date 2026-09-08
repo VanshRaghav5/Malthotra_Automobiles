@@ -30,6 +30,7 @@ export default function AdminServices() {
       });
       setSlotForm({ date: '', start_time: '', end_time: '', capacity: '1' });
       queryClient.invalidateQueries({ queryKey: ['admin-services'] });
+      queryClient.invalidateQueries({ queryKey: ['all-services'] });
     } catch (err: any) {
       alert(err.response?.data?.error || 'Failed to create slot');
     }
@@ -39,6 +40,7 @@ export default function AdminServices() {
     try {
       await deleteSlot(serviceId, slotId);
       queryClient.invalidateQueries({ queryKey: ['admin-services'] });
+      queryClient.invalidateQueries({ queryKey: ['all-services'] });
     } catch (err: any) {
       alert(err.response?.data?.error || 'Failed to delete slot');
     }
@@ -49,6 +51,7 @@ export default function AdminServices() {
     try {
       await deleteService(id);
       queryClient.invalidateQueries({ queryKey: ['admin-services'] });
+      queryClient.invalidateQueries({ queryKey: ['all-services'] });
     } catch (err: any) {
       alert(err.response?.data?.error || 'Failed to delete service');
     }
@@ -70,6 +73,7 @@ export default function AdminServices() {
       setUploadingImage(serviceId);
       await uploadServiceImage(serviceId, compressed);
       queryClient.invalidateQueries({ queryKey: ['admin-services'] });
+      queryClient.invalidateQueries({ queryKey: ['all-services'] });
     } catch (err: any) {
       alert(err.response?.data?.error || 'Failed to upload image');
     } finally {
@@ -136,6 +140,7 @@ export default function AdminServices() {
       if (editingId) await updateService(editingId, payload);
       else await createService(payload);
       await queryClient.invalidateQueries({ queryKey: ['admin-services'] });
+      queryClient.invalidateQueries({ queryKey: ['all-services'] });
       resetForm();
     } catch (err: any) {
       alert(err.response?.data?.error || 'Failed to save service');
