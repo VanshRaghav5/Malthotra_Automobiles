@@ -31,6 +31,7 @@ export default function AdminServices() {
       setSlotForm({ date: '', start_time: '', end_time: '', capacity: '1' });
       queryClient.invalidateQueries({ queryKey: ['admin-services'] });
       queryClient.invalidateQueries({ queryKey: ['all-services'] });
+      queryClient.invalidateQueries({ queryKey: ['featured-services'] });
     } catch (err: any) {
       alert(err.response?.data?.error || 'Failed to create slot');
     }
@@ -41,6 +42,7 @@ export default function AdminServices() {
       await deleteSlot(serviceId, slotId);
       queryClient.invalidateQueries({ queryKey: ['admin-services'] });
       queryClient.invalidateQueries({ queryKey: ['all-services'] });
+      queryClient.invalidateQueries({ queryKey: ['featured-services'] });
     } catch (err: any) {
       alert(err.response?.data?.error || 'Failed to delete slot');
     }
@@ -52,6 +54,7 @@ export default function AdminServices() {
       await deleteService(id);
       queryClient.invalidateQueries({ queryKey: ['admin-services'] });
       queryClient.invalidateQueries({ queryKey: ['all-services'] });
+      queryClient.invalidateQueries({ queryKey: ['featured-services'] });
     } catch (err: any) {
       alert(err.response?.data?.error || 'Failed to delete service');
     }
@@ -74,6 +77,7 @@ export default function AdminServices() {
       await uploadServiceImage(serviceId, compressed);
       queryClient.invalidateQueries({ queryKey: ['admin-services'] });
       queryClient.invalidateQueries({ queryKey: ['all-services'] });
+      queryClient.invalidateQueries({ queryKey: ['featured-services'] });
     } catch (err: any) {
       alert(err.response?.data?.error || 'Failed to upload image');
     } finally {
@@ -141,6 +145,7 @@ export default function AdminServices() {
       else await createService(payload);
       await queryClient.invalidateQueries({ queryKey: ['admin-services'] });
       queryClient.invalidateQueries({ queryKey: ['all-services'] });
+      queryClient.invalidateQueries({ queryKey: ['featured-services'] });
       resetForm();
     } catch (err: any) {
       alert(err.response?.data?.error || 'Failed to save service');
